@@ -170,7 +170,7 @@ if __name__ == "__main__":
     burst_counts = (bursts.groupby(['Channel Label', 'Well Label']).size()
         .unstack(fill_value=0).reindex(columns=condition_labels, fill_value=0))
     burst_spike_counts = ((bursts.groupby(['Channel Label', 'Well Label'])\
-            ['Spike Count'].mean().unstack(fill_value=0)
+            ['Spike Count'].sum().unstack(fill_value=0)
                            .reindex(columns=condition_labels, fill_value=0)))
 
     spike_counts_per_min = spike_counts / mins_recorded
@@ -244,4 +244,4 @@ if __name__ == "__main__":
     nb_avg_inter_burst_interval.to_excel(os.path.join(out_base,
                                                       "net_bursts_avg_ibi.xlsx"))
     nb_ibi_coef_of_var.to_excel(os.path.join(out_base,
-                                                      "net_bursts_avg_ibi.xlsx"))
+                                                      "net_bursts_ibi_coef_of_var.xlsx"))
