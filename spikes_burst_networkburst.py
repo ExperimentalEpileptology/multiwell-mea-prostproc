@@ -3,14 +3,14 @@ from argparse import ArgumentDefaultsHelpFormatter
 import ast
 import os
 
-# from gooey import Gooey, GooeyParser
+from gooey import Gooey, GooeyParser
 import pandas as pd
 
 
-# @Gooey
+@Gooey
 def parse_args():
     ############### Make script callable from command line with arguments
-    parser = argparse.ArgumentParser( # GooeyParser(
+    parser = GooeyParser(
             prog="Multiwell MEA Analysis Script",
             description=("This script will further analyze the results output "
                          "by the MCS Multiwell MEA software. Credits to Caro "
@@ -35,8 +35,8 @@ def parse_args():
 
     parser.add_argument("base_dir",
                         type=str,
-                        help="base directory (e.g. /mnt/data/multiwell/csv/)") #,
-                        #widget="DirChooser")
+                        help="base directory (e.g. /mnt/data/multiwell/csv/)",
+                        widget="DirChooser")
 
     parser.add_argument("conditions_file",
                         type=str,
@@ -216,7 +216,7 @@ if __name__ == "__main__":
 
 
     ############### Net Bursts
-    # inter burst interval und var of coef 
+    # inter burst interval und var of coef
     nb_numbers = pd.DataFrame(columns=conditions.keys())
     nb_duration = pd.DataFrame(columns=conditions.keys())
     nb_sike_count = pd.DataFrame(columns=conditions.keys())
