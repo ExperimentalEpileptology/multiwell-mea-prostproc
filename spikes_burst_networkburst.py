@@ -3,17 +3,14 @@ from argparse import ArgumentDefaultsHelpFormatter
 import ast
 import os
 
-import matplotlib.pyplot as plt
-import numpy as np
+# from gooey import Gooey, GooeyParser
 import pandas as pd
-import seaborn as sns
 
-from gooey import Gooey, GooeyParser
 
-@Gooey
+# @Gooey
 def parse_args():
     ############### Make script callable from command line with arguments
-    parser = GooeyParser(
+    parser = argparse.ArgumentParser( # GooeyParser(
             prog="Multiwell MEA Analysis Script",
             description=("This script will further analyze the results output "
                          "by the MCS Multiwell MEA software. Credits to Caro "
@@ -38,8 +35,8 @@ def parse_args():
 
     parser.add_argument("base_dir",
                         type=str,
-                        help="base directory (e.g. /mnt/data/multiwell/csv/)",
-                        widget="DirChooser")
+                        help="base directory (e.g. /mnt/data/multiwell/csv/)") #,
+                        #widget="DirChooser")
 
     parser.add_argument("conditions_file",
                         type=str,
@@ -117,12 +114,18 @@ if __name__ == "__main__":
     for arr in [bursts, net_bursts]:
         arr['End timestamp [µs]'] = (arr['Start timestamp [µs]']
                                       + arr['Duration [µs]'])
-    # Compute inter burst intervals
+    # Compute inter burst intervals for bursts
     for i in range(1, bursts.shape[0]):
         if bursts.loc[i, 'Channel Label'] == bursts.loc[(i-1), 'Channel Label']:
             start_t = bursts.loc[i, "Start timestamp [µs]"]
             end_t = bursts.loc[(i-1), 'End timestamp [µs]']
             bursts.loc[i,"inter burst interval"] = start_t - end_t
+
+    for i in range(1, net_bursts.shape[0]):
+        if net_bursts.loc[i, 'Well Label'] == net_bursts.loc[(i-1), 'Well Label']:
+            start_t = net_bursts.loc[i, "Start timestamp [µs]"]
+            end_t = net_bursts.loc[(i-1), 'End timestamp [µs]']
+            net_bursts.loc[i,"inter burst interval"] = start_t - end_t
 
     print("End timestamps and inter burst intervals computed")
 
@@ -152,23 +155,28 @@ if __name__ == "__main__":
     random_spikes_ratio = pd.DataFrame(index=channel_labels)
 
 
-    # In the following we will use group by statements which essentially 
+    # In the following we will use group by statements which essentially
     # perform the the summation of spikes for each group and channels.
     # These however turn the data into the format [Channel ID, Well ID, Value]
     # (i.e. each row contains the desired value (e.g. #spikes) of one channel
-    # in one well). However the user wants to have the data in the format 
+    # in one well). However the user wants to have the data in the format
     # [Channel ID, Well 0, Well 1, ..., Well N] (i.e. each row contains the
     # desired value (e.g. #spikes) of one channel in all wells). To achieve
     # this we use the unstack function, which does exactly this and fills empty
     # fields with 0.
     agg_cols = ['Channel Label', 'Well Label']
-    spike_counts = spikes.groupby(['Channel Label', 'Well Label']).size().unstack(fill_value=0).reindex(columns=condition_labels, fill_value=0)
-    burst_counts = bursts.groupby(['Channel Label', 'Well Label']).size().unstack(fill_value=0).reindex(columns=condition_labels, fill_value=0)
+    spike_counts = (spikes.groupby(['Channel Label', 'Well Label']).size()
+        .unstack(fill_value=0).reindex(columns=condition_labels, fill_value=0))
+    burst_counts = (bursts.groupby(['Channel Label', 'Well Label']).size()
+        .unstack(fill_value=0).reindex(columns=condition_labels, fill_value=0))
+    burst_spike_counts = ((bursts.groupby(['Channel Label', 'Well Label'])\
+            ['Spike Count'].mean().unstack(fill_value=0)
+                           .reindex(columns=condition_labels, fill_value=0)))
 
     spike_counts_per_min = spike_counts / mins_recorded
     burst_counts_per_min = burst_counts / mins_recorded
 
-    spon_spike_counts = spike_counts - burst_counts
+    spon_spike_counts = spike_counts - burst_spike_counts
     spon_spike_ratio = (spon_spike_counts / spike_counts * 100).fillna(0)
 
     spike_counts.to_excel(os.path.join(out_base, 'spike_counts.xlsx'))
@@ -189,30 +197,51 @@ if __name__ == "__main__":
     avg_spike_freq = pd.DataFrame(index=channel_labels)
     avg_inter_burst_interval = pd.DataFrame(index=channel_labels)
 
-    avg_burst_duration = bursts.groupby(agg_cols)['Duration [µs]'].mean().unstack()
-    avg_spike_freq = bursts.groupby(agg_cols)['Spike Frequency [Hz]'].mean().unstack()
+    avg_burst_duration = (bursts.groupby(agg_cols)['Duration [µs]'].mean()
+        .unstack())
+    avg_spike_freq = (bursts.groupby(agg_cols)['Spike Frequency [Hz]'].mean()
+        .unstack())
     avg_spike_count = bursts.groupby(agg_cols)['Spike Count'].mean().unstack()
-    avg_inter_burst_interval = bursts.groupby(agg_cols)['inter burst interval'].mean().unstack()
+    avg_inter_burst_interval = (bursts.groupby(agg_cols)['inter burst interval']
+        .mean().unstack())
 
-    avg_burst_duration.to_excel(os.path.join(out_base, "avg_burst_duration.xlsx"))
-    avg_spike_freq.to_excel(os.path.join(out_base, "avgSpikeFreqPerBurst.xlsx"))
-    avg_spike_count.to_excel(os.path.join(out_base, "avgSpikeCountPerBurst.xlsx"))
-    avg_inter_burst_interval.to_excel(os.path.join(out_base, "avgInterBurstInterval.xlsx"))
+    avg_burst_duration.to_excel(os.path.join(out_base,
+                                             "avg_burst_duration.xlsx"))
+    avg_spike_freq.to_excel(os.path.join(out_base,
+                                         "avgSpikeFreqPerBurst.xlsx"))
+    avg_spike_count.to_excel(os.path.join(out_base,
+                                          "avgSpikeCountPerBurst.xlsx"))
+    avg_inter_burst_interval.to_excel(os.path.join(out_base,
+                                          "avgInterBurstInterval.xlsx"))
 
 
     ############### Net Bursts
+    # inter burst interval und var of coef 
     nb_numbers = pd.DataFrame(columns=conditions.keys())
     nb_duration = pd.DataFrame(columns=conditions.keys())
     nb_sike_count = pd.DataFrame(columns=conditions.keys())
     nb_spike_freq = pd.DataFrame(columns=conditions.keys())
+    nb_avg_inter_burst_interval = pd.DataFrame(columns=conditions.keys())
+    nb_ibi_coef_of_var = pd.DataFrame(columns=conditions.keys())
 
-    nb_numbers = net_bursts.groupby(['Well Label']).size().reindex(index=condition_labels, fill_value=0) / mins_recorded
+    nb_numbers = (net_bursts.groupby(['Well Label']).size()
+        .reindex(index=condition_labels, fill_value=0) / mins_recorded)
     nb_duration = net_bursts.groupby(['Well Label'])['Duration [µs]'].mean()
     nb_spike_count = net_bursts.groupby(['Well Label'])['Spike Count'].mean()
-    nb_spike_freq = net_bursts.groupby(['Well Label'])['Spike Frequency [Hz]'].mean()
+    nb_spike_freq = (net_bursts.groupby(['Well Label'])['Spike Frequency [Hz]']
+        .mean())
+    nb_avg_inter_burst_interval = (net_bursts.groupby(['Well Label'])\
+            ['inter burst interval'].mean())
+    nb_ibi_coef_of_var = (nb_avg_inter_burst_interval / net_bursts
+                          .groupby(['Well Label'])['inter burst interval']
+                          .std())
 
     nb_numbers.to_excel(os.path.join(out_base, "net_bursts_count_per_min.xlsx"))
     nb_duration.to_excel(os.path.join(out_base, "net_bursts_avg_duration.xlsx"))
     nb_spike_count.to_excel(os.path.join(out_base,
                                          "net_bursts_spike_count_per_min.xlsx"))
     nb_spike_freq.to_excel(os.path.join(out_base, "net_bursts_spike_freq.xlsx"))
+    nb_avg_inter_burst_interval.to_excel(os.path.join(out_base,
+                                                      "net_bursts_avg_ibi.xlsx"))
+    nb_ibi_coef_of_var.to_excel(os.path.join(out_base,
+                                                      "net_bursts_avg_ibi.xlsx"))

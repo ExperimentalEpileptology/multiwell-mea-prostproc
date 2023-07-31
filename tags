@@ -61,18 +61,19 @@ add_pages	gui/main_wizard.py	/^    def add_pages(self, pages):$/;"	m	class:ep_ma
 agg_cols	spikes_burst_networkburst.py	/^    agg_cols = ['Channel Label', 'Well Label']$/;"	v
 app	main.py	/^    app = QtWidgets.QApplication(sys.argv)$/;"	v
 args	spikes_burst_networkburst.py	/^    args = parse_args()$/;"	v
-avg_burst_duration	spikes_burst_networkburst.py	/^    avg_burst_duration = bursts.groupby(agg_cols)['Duration [µs]'].mean().unstack()$/;"	v
+avg_burst_duration	spikes_burst_networkburst.py	/^    avg_burst_duration = (bursts.groupby(agg_cols)['Duration [µs]'].mean()$/;"	v
 avg_burst_duration	spikes_burst_networkburst.py	/^    avg_burst_duration = pd.DataFrame(index=channel_labels)$/;"	v
-avg_inter_burst_interval	spikes_burst_networkburst.py	/^    avg_inter_burst_interval = bursts.groupby(agg_cols)['inter burst interval'].mean().unstack()$/;"	v
+avg_inter_burst_interval	spikes_burst_networkburst.py	/^    avg_inter_burst_interval = (bursts.groupby(agg_cols)['inter burst interval']$/;"	v
 avg_inter_burst_interval	spikes_burst_networkburst.py	/^    avg_inter_burst_interval = pd.DataFrame(index=channel_labels)$/;"	v
 avg_spike_count	spikes_burst_networkburst.py	/^    avg_spike_count = bursts.groupby(agg_cols)['Spike Count'].mean().unstack()$/;"	v
 avg_spike_count	spikes_burst_networkburst.py	/^    avg_spike_count = pd.DataFrame(index=channel_labels)$/;"	v
-avg_spike_freq	spikes_burst_networkburst.py	/^    avg_spike_freq = bursts.groupby(agg_cols)['Spike Frequency [Hz]'].mean().unstack()$/;"	v
+avg_spike_freq	spikes_burst_networkburst.py	/^    avg_spike_freq = (bursts.groupby(agg_cols)['Spike Frequency [Hz]'].mean()$/;"	v
 avg_spike_freq	spikes_burst_networkburst.py	/^    avg_spike_freq = pd.DataFrame(index=channel_labels)$/;"	v
 base	spikes_burst_networkburst.py	/^    base = args.base_dir$/;"	v
-burst_counts	spikes_burst_networkburst.py	/^    burst_counts = bursts.groupby(['Channel Label', 'Well Label']).size().unstack(fill_value=0)./;"	v
+burst_counts	spikes_burst_networkburst.py	/^    burst_counts = (bursts.groupby(['Channel Label', 'Well Label']).size()$/;"	v
 burst_counts	spikes_burst_networkburst.py	/^    burst_counts = pd.DataFrame(index=channel_labels)$/;"	v
 burst_counts_per_min	spikes_burst_networkburst.py	/^    burst_counts_per_min = burst_counts \/ mins_recorded$/;"	v
+burst_spike_counts	spikes_burst_networkburst.py	/^    burst_spike_counts = ((bursts.groupby(['Channel Label', 'Well Label'])\\$/;"	v
 bursts	spikes_burst_networkburst.py	/^    bursts = pd.read_csv(bursts_file)$/;"	v
 bursts_file	spikes_burst_networkburst.py	/^    bursts_file = os.path.join(base, bursts_fname)$/;"	v
 bursts_fname	spikes_burst_networkburst.py	/^    bursts_fname = args.bursts_file$/;"	v
@@ -83,6 +84,7 @@ conditions	spikes_burst_networkburst.py	/^        conditions = ast.literal_eval(
 conditions_file	spikes_burst_networkburst.py	/^    conditions_file = os.path.join(base, conditions_fname)$/;"	v
 conditions_fname	spikes_burst_networkburst.py	/^    conditions_fname = args.conditions_file$/;"	v
 end_t	spikes_burst_networkburst.py	/^            end_t = bursts.loc[(i-1), 'End timestamp [µs]']$/;"	v
+end_t	spikes_burst_networkburst.py	/^            end_t = net_bursts.loc[(i-1), 'End timestamp [µs]']$/;"	v
 ep_main_wizard	gui/main_wizard.py	/^class ep_main_wizard(QtWidgets.QWizard):$/;"	c
 ep_quickplot	gui/steps/helper_widgets.py	/^class ep_quickplot(QtWebEngineWidgets.QWebEngineView):$/;"	c
 ep_quickplot_mpl	gui/steps/helper_widgets.py	/^class ep_quickplot_mpl(QtWidgets.QWidget):$/;"	c
@@ -94,19 +96,22 @@ get_data	core/datareader.py	/^    def get_data(self):$/;"	m	class:abf_data
 go	gui/steps/helper_widgets.py	/^import plotly.graph_objects as go$/;"	I	nameref:module:plotly.graph_objects
 m	main.py	/^    m = ep_main_wizard()$/;"	v
 mins_recorded	spikes_burst_networkburst.py	/^    mins_recorded = args.mins_recorded$/;"	v
+nb_avg_inter_burst_interval	spikes_burst_networkburst.py	/^    nb_avg_inter_burst_interval = (net_bursts.groupby(['Well Label'])\\$/;"	v
+nb_avg_inter_burst_interval	spikes_burst_networkburst.py	/^    nb_avg_inter_burst_interval = pd.DataFrame(columns=conditions.keys())$/;"	v
 nb_duration	spikes_burst_networkburst.py	/^    nb_duration = net_bursts.groupby(['Well Label'])['Duration [µs]'].mean()$/;"	v
 nb_duration	spikes_burst_networkburst.py	/^    nb_duration = pd.DataFrame(columns=conditions.keys())$/;"	v
-nb_numbers	spikes_burst_networkburst.py	/^    nb_numbers = net_bursts.groupby(['Well Label']).size().reindex(index=condition_labels, fill_/;"	v
+nb_ibi_coef_of_var	spikes_burst_networkburst.py	/^    nb_ibi_coef_of_var = (nb_avg_inter_burst_interval \/ net_bursts$/;"	v
+nb_ibi_coef_of_var	spikes_burst_networkburst.py	/^    nb_ibi_coef_of_var = pd.DataFrame(columns=conditions.keys())$/;"	v
+nb_numbers	spikes_burst_networkburst.py	/^    nb_numbers = (net_bursts.groupby(['Well Label']).size()$/;"	v
 nb_numbers	spikes_burst_networkburst.py	/^    nb_numbers = pd.DataFrame(columns=conditions.keys())$/;"	v
 nb_sike_count	spikes_burst_networkburst.py	/^    nb_sike_count = pd.DataFrame(columns=conditions.keys())$/;"	v
 nb_spike_count	spikes_burst_networkburst.py	/^    nb_spike_count = net_bursts.groupby(['Well Label'])['Spike Count'].mean()$/;"	v
-nb_spike_freq	spikes_burst_networkburst.py	/^    nb_spike_freq = net_bursts.groupby(['Well Label'])['Spike Frequency [Hz]'].mean()$/;"	v
+nb_spike_freq	spikes_burst_networkburst.py	/^    nb_spike_freq = (net_bursts.groupby(['Well Label'])['Spike Frequency [Hz]']$/;"	v
 nb_spike_freq	spikes_burst_networkburst.py	/^    nb_spike_freq = pd.DataFrame(columns=conditions.keys())$/;"	v
 net_bursts	spikes_burst_networkburst.py	/^    net_bursts = pd.read_csv(net_bursts_file)$/;"	v
 net_bursts_file	spikes_burst_networkburst.py	/^    net_bursts_file = os.path.join(base, net_bursts_fname)$/;"	v
 net_bursts_fname	spikes_burst_networkburst.py	/^    net_bursts_fname = args.net_bursts_file$/;"	v
 np	core/datareader.py	/^import numpy as np$/;"	I	nameref:module:numpy
-np	spikes_burst_networkburst.py	/^import numpy as np$/;"	I	nameref:module:numpy
 on_browse	gui/steps/step_load_single_file.py	/^    def on_browse(self):$/;"	m	class:ep_step_load_single_file
 on_filename_changed	gui/steps/step_load_single_file.py	/^    def on_filename_changed(self, new_filename: str):$/;"	m	class:ep_step_load_single_file
 out_base	spikes_burst_networkburst.py	/^    out_base = os.path.join(base, plate_name)$/;"	v
@@ -117,19 +122,18 @@ plot	gui/steps/helper_widgets.py	/^    def plot(self, data):$/;"	m	class:ep_quic
 plot	gui/steps/helper_widgets.py	/^    def plot(self, data):$/;"	m	class:ep_quickplot_mpl
 plot_data	gui/steps/helper_widgets.py	/^    def plot_data(self, data):$/;"	m	class:_ep_mpl_plot_area
 plt	gui/steps/helper_widgets.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
-plt	spikes_burst_networkburst.py	/^import matplotlib.pyplot as plt$/;"	I	nameref:module:matplotlib.pyplot
 random_spikes_ratio	spikes_burst_networkburst.py	/^    random_spikes_ratio = pd.DataFrame(index=channel_labels)$/;"	v
-sns	spikes_burst_networkburst.py	/^import seaborn as sns$/;"	I	nameref:module:seaborn
+spike_counts	spikes_burst_networkburst.py	/^    spike_counts = (spikes.groupby(['Channel Label', 'Well Label']).size()$/;"	v
 spike_counts	spikes_burst_networkburst.py	/^    spike_counts = pd.DataFrame(index=channel_labels)$/;"	v
-spike_counts	spikes_burst_networkburst.py	/^    spike_counts = spikes.groupby(['Channel Label', 'Well Label']).size().unstack(fill_value=0)./;"	v
 spike_counts_per_min	spikes_burst_networkburst.py	/^    spike_counts_per_min = spike_counts \/ mins_recorded$/;"	v
 spikes	spikes_burst_networkburst.py	/^    spikes = pd.read_csv(spikes_file)$/;"	v
 spikes_file	spikes_burst_networkburst.py	/^    spikes_file = os.path.join(base, spikes_fname)$/;"	v
 spikes_fname	spikes_burst_networkburst.py	/^    spikes_fname = args.spikes_file$/;"	v
 spon_spike_counts	spikes_burst_networkburst.py	/^    spon_spike_counts = pd.DataFrame(index=channel_labels)$/;"	v
-spon_spike_counts	spikes_burst_networkburst.py	/^    spon_spike_counts = spike_counts - burst_counts$/;"	v
+spon_spike_counts	spikes_burst_networkburst.py	/^    spon_spike_counts = spike_counts - burst_spike_counts$/;"	v
 spon_spike_ratio	spikes_burst_networkburst.py	/^    spon_spike_ratio = (spon_spike_counts \/ spike_counts * 100).fillna(0)$/;"	v
 start_t	spikes_burst_networkburst.py	/^            start_t = bursts.loc[i, "Start timestamp [µs]"]$/;"	v
+start_t	spikes_burst_networkburst.py	/^            start_t = net_bursts.loc[i, "Start timestamp [µs]"]$/;"	v
 step	main.py	/^    step = ep_step_load_single_file()$/;"	v
 sweep	core/datareader.py	/^class sweep:$/;"	c
 sweep_data	core/datareader.py	/^class sweep_data:$/;"	c
