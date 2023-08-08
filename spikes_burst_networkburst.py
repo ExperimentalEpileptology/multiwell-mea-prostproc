@@ -232,9 +232,8 @@ if __name__ == "__main__":
         .mean())
     nb_avg_inter_burst_interval = (net_bursts.groupby(['Well Label'])\
             ['inter burst interval'].mean())
-    nb_ibi_coef_of_var = (nb_avg_inter_burst_interval / net_bursts
-                          .groupby(['Well Label'])['inter burst interval']
-                          .std())
+    nb_ibi_coef_of_var = (net_bursts.groupby(['Well Label'])\
+            ['inter burst interval'].std() / nb_avg_inter_burst_interval )
 
     nb_numbers.to_excel(os.path.join(out_base, "net_bursts_count_per_min.xlsx"))
     nb_duration.to_excel(os.path.join(out_base, "net_bursts_avg_duration.xlsx"))
