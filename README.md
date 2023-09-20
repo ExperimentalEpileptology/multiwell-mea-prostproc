@@ -1,6 +1,9 @@
 # Multiwell MEA Post-Processing Script
 
-Select the "multiwell-mea" environment in Anaconda Navigator and open it in the terminal. Then, in the terminal, enter the following:  
+Download the folder as Zip and extract it somewhere. Or even better if you have a GitHub account clone it.
+
+Select the "multiwell-mea" environment in Anaconda Navigator and open it in the terminal.
+Then, in the terminal, enter the following:  
 
 '''  
 cd \<path to folder containing script\>  
