@@ -4,6 +4,7 @@ import ast
 import os
 
 from gooey import Gooey, GooeyParser
+import numpy as np
 import pandas as pd
 
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
 
     for fname in [conditions_file, spikes_file, bursts_file, net_bursts_file]:
         if not os.path.isfile(fname):
-            raise FileNotFoundError(f'{fname} not found or not a file!')
+            raise FileNotFoundError(f"{fname} not found or not a file!")
 
     ############### Setup output folder
     plate_name = '_'.join(os.path.basename(spikes_file).split('_')[0:-1])
@@ -119,13 +120,19 @@ if __name__ == "__main__":
         if bursts.loc[i, 'Channel Label'] == bursts.loc[(i-1), 'Channel Label']:
             start_t = bursts.loc[i, "Start timestamp [µs]"]
             end_t = bursts.loc[(i-1), 'End timestamp [µs]']
-            bursts.loc[i,"inter burst interval"] = start_t - end_t
+            bursts.loc[i,"inter burst interval [µs]"] = start_t - end_t
+
+    if bursts.shape[0] == 0:
+        bursts["inter burst interval [µs]"] = np.nan
 
     for i in range(1, net_bursts.shape[0]):
         if net_bursts.loc[i, 'Well Label'] == net_bursts.loc[(i-1), 'Well Label']:
             start_t = net_bursts.loc[i, "Start timestamp [µs]"]
             end_t = net_bursts.loc[(i-1), 'End timestamp [µs]']
-            net_bursts.loc[i,"inter burst interval"] = start_t - end_t
+            net_bursts.loc[i,"inter burst interval [µs]"] = start_t - end_t
+
+    if net_bursts.shape[0] == 0:
+        net_bursts["inter burst interval [µs]"] = np.nan
 
     print("End timestamps and inter burst intervals computed")
 
@@ -146,7 +153,6 @@ if __name__ == "__main__":
 
     ############### Use channel labels as index
     channel_labels = spikes["Channel Label"].unique().tolist()
-
     ############### Calculate the desired spike counts
     print("Calc spike counts")
     spike_counts = pd.DataFrame(index=channel_labels)
@@ -202,17 +208,17 @@ if __name__ == "__main__":
     avg_spike_freq = (bursts.groupby(agg_cols)['Spike Frequency [Hz]'].mean()
         .unstack())
     avg_spike_count = bursts.groupby(agg_cols)['Spike Count'].mean().unstack()
-    avg_inter_burst_interval = (bursts.groupby(agg_cols)['inter burst interval']
+    avg_inter_burst_interval = (bursts.groupby(agg_cols)['inter burst interval [µs]']
         .mean().unstack())
 
     avg_burst_duration.to_excel(os.path.join(out_base,
                                              "avg_burst_duration.xlsx"))
     avg_spike_freq.to_excel(os.path.join(out_base,
-                                         "avgSpikeFreqPerBurst.xlsx"))
+                                         "avg_spike_freq_per_burst.xlsx"))
     avg_spike_count.to_excel(os.path.join(out_base,
-                                          "avgSpikeCountPerBurst.xlsx"))
+                                          "avg_spike_count_per_burst.xlsx"))
     avg_inter_burst_interval.to_excel(os.path.join(out_base,
-                                          "avgInterBurstInterval.xlsx"))
+                                          "avg_inter_burst_interval.xlsx"))
 
 
     ############### Net Bursts
@@ -231,9 +237,9 @@ if __name__ == "__main__":
     nb_spike_freq = (net_bursts.groupby(['Well Label'])['Spike Frequency [Hz]']
         .mean())
     nb_avg_inter_burst_interval = (net_bursts.groupby(['Well Label'])\
-            ['inter burst interval'].mean())
+            ['inter burst interval [µs]'].mean())
     nb_ibi_coef_of_var = (net_bursts.groupby(['Well Label'])\
-            ['inter burst interval'].std() / nb_avg_inter_burst_interval )
+            ['inter burst interval [µs]'].std() / nb_avg_inter_burst_interval )
 
     nb_numbers.to_excel(os.path.join(out_base, "net_bursts_count_per_min.xlsx"))
     nb_duration.to_excel(os.path.join(out_base, "net_bursts_avg_duration.xlsx"))
