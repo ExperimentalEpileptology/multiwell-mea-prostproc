@@ -185,6 +185,19 @@ if __name__ == "__main__":
     spon_spike_counts = spike_counts - burst_spike_counts
     spon_spike_ratio = (spon_spike_counts / spike_counts * 100).fillna(0)
 
+    spike_counts.index = spike_counts.index.set_names(
+        'Spike Count per Well and Channel')
+    spike_counts_per_min.index = spike_counts_per_min.index.set_names(
+        'Spike Counts per min [1/min] per Well and Channel')
+    burst_counts.index = burst_counts.index.set_names(
+        'Burst Counts per Well and Channel')
+    burst_counts_per_min.index = burst_counts_per_min.index.set_names(
+        'Burst Counts per min [1/min] per Well and Channel')
+    spon_spike_counts.index = spon_spike_counts.index.set_names(
+        "Spontaneous Spike Counts per Well and Channel")
+    spon_spike_ratio.index = spon_spike_ratio.index.set_names(
+        "Spontaneous Spike Ratio [%] per Well and Channel")
+
     spike_counts.to_excel(os.path.join(out_base, 'spike_counts.xlsx'))
     spike_counts_per_min.to_excel(
             os.path.join(out_base, 'spike_counts_per_min.xlsx'))
@@ -204,12 +217,21 @@ if __name__ == "__main__":
     avg_inter_burst_interval = pd.DataFrame(index=channel_labels)
 
     avg_burst_duration = (bursts.groupby(agg_cols)['Duration [µs]'].mean()
-        .unstack())
+        .unstack()).reindex(columns=condition_labels)
     avg_spike_freq = (bursts.groupby(agg_cols)['Spike Frequency [Hz]'].mean()
-        .unstack())
-    avg_spike_count = bursts.groupby(agg_cols)['Spike Count'].mean().unstack()
+        .unstack()).reindex(columns=condition_labels)
+    avg_spike_count = bursts.groupby(agg_cols)['Spike Count'].mean().unstack().reindex(columns=condition_labels)
     avg_inter_burst_interval = (bursts.groupby(agg_cols)['inter burst interval [µs]']
-        .mean().unstack())
+        .mean().unstack()).reindex(columns=condition_labels)
+
+    avg_burst_duration.index = avg_burst_duration.index.set_names(
+        "Burst Average Duration [µs] per Well and Channel")
+    avg_spike_freq.index = avg_spike_freq.index.set_names(
+        "Burst Average Spike Frequency [Hz] per Well and Channel")
+    avg_spike_count.index = avg_spike_count.index.set_names(
+        "Burst Average Spike Count per Well and Channel")
+    avg_inter_burst_interval.index = avg_inter_burst_interval.index.set_names(
+        "Average Inter-Burst Interval [µs] per Well and Channel")
 
     avg_burst_duration.to_excel(os.path.join(out_base,
                                              "avg_burst_duration.xlsx"))
@@ -223,23 +245,35 @@ if __name__ == "__main__":
 
     ############### Net Bursts
     # inter burst interval und var of coef
-    nb_numbers = pd.DataFrame(columns=conditions.keys())
-    nb_duration = pd.DataFrame(columns=conditions.keys())
-    nb_sike_count = pd.DataFrame(columns=conditions.keys())
-    nb_spike_freq = pd.DataFrame(columns=conditions.keys())
-    nb_avg_inter_burst_interval = pd.DataFrame(columns=conditions.keys())
-    nb_ibi_coef_of_var = pd.DataFrame(columns=conditions.keys())
+    nb_numbers = pd.DataFrame(columns=condition_labels)
+    nb_duration = pd.DataFrame(columns=condition_labels)
+    nb_sike_count = pd.DataFrame(columns=condition_labels)
+    nb_spike_freq = pd.DataFrame(columns=condition_labels)
+    nb_avg_inter_burst_interval = pd.DataFrame(columns=condition_labels)
+    nb_ibi_coef_of_var = pd.DataFrame(columns=condition_labels)
 
     nb_numbers = (net_bursts.groupby(['Well Label']).size()
         .reindex(index=condition_labels, fill_value=0) / mins_recorded)
-    nb_duration = net_bursts.groupby(['Well Label'])['Duration [µs]'].mean()
-    nb_spike_count = net_bursts.groupby(['Well Label'])['Spike Count'].mean()
+    nb_duration = net_bursts.groupby(['Well Label'])['Duration [µs]'].mean().reindex(index=condition_labels)
+    nb_spike_count = net_bursts.groupby(['Well Label'])['Spike Count'].mean().reindex(index=condition_labels)
     nb_spike_freq = (net_bursts.groupby(['Well Label'])['Spike Frequency [Hz]']
-        .mean())
+        .mean()).reindex(index=condition_labels)
     nb_avg_inter_burst_interval = (net_bursts.groupby(['Well Label'])\
-            ['inter burst interval [µs]'].mean())
+            ['inter burst interval [µs]'].mean()).reindex(index=condition_labels)
     nb_ibi_coef_of_var = (net_bursts.groupby(['Well Label'])\
-            ['inter burst interval [µs]'].std() / nb_avg_inter_burst_interval )
+            ['inter burst interval [µs]'].std() / nb_avg_inter_burst_interval ).reindex(index=condition_labels)
+
+    nb_numbers.rename("Network Burst Count per Well", inplace=True)
+    nb_duration.rename("Network Burst Average Duration [µs] per Well",
+                       inplace=True)
+    nb_spike_count.rename("Network Burst Average Spike Count per Well",
+                          inplace=True)
+    nb_spike_freq.rename("Network Burst Average Spike Frequency [Hz] per Well",
+                         inplace=True)
+    nb_avg_inter_burst_interval.rename("Network Average Inter-Burst Interval"
+                                       "[µs] per Well", inplace=True)
+    nb_ibi_coef_of_var.rename("Network Inter-Burst Interval Coefficient of"
+                              " Variation per Well", inplace=True)
 
     nb_numbers.to_excel(os.path.join(out_base, "net_bursts_count_per_min.xlsx"))
     nb_duration.to_excel(os.path.join(out_base, "net_bursts_avg_duration.xlsx"))
