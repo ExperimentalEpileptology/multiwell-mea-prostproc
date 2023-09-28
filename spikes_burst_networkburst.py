@@ -122,7 +122,7 @@ if __name__ == "__main__":
             end_t = bursts.loc[(i-1), 'End timestamp [µs]']
             bursts.loc[i,"inter burst interval [µs]"] = start_t - end_t
 
-    if bursts.shape[0] == 0:
+    if bursts.shape[0] < 2:
         bursts["inter burst interval [µs]"] = np.nan
 
     for i in range(1, net_bursts.shape[0]):
@@ -131,7 +131,7 @@ if __name__ == "__main__":
             end_t = net_bursts.loc[(i-1), 'End timestamp [µs]']
             net_bursts.loc[i,"inter burst interval [µs]"] = start_t - end_t
 
-    if net_bursts.shape[0] == 0:
+    if net_bursts.shape[0] < 2:
         net_bursts["inter burst interval [µs]"] = np.nan
 
     print("End timestamps and inter burst intervals computed")
